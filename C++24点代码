@@ -1,0 +1,129 @@
+#include "stdafx.h"
+#include<iostream>
+#include<vector>
+using namespace std;
+const int error = 32767;
+int change(char a);
+int calculate(int x, int y, int i)//进行计算操作，i代表操作的类型
+{
+	switch (i)
+	{
+	case 0:return x + y;
+	case 1:return x - y;
+	case 2:return x*y;
+	case 3:if (y != 0 && x%y == 0)return x / y;
+		   else return error;
+	}
+}
+bool judge(int a[4])
+{
+	for (int i(0); i < 4; i++)//代表穷举进行(A@B)@(C@D)
+	{
+		int temp1 = calculate(a[0], a[1], i);
+		if (temp1 == error)continue;
+		for (int j(0); j < 4; j++)
+		{
+			int temp2 = calculate(a[2], a[3], j);
+			if (temp2 == error)continue;
+			for (int k(0); k< 4; k++)
+			{
+				int temp3 = calculate(temp1, temp2, k);
+				if (temp3 == 24)return true;
+			}
+		}
+	}
+	for (int i(0); i < 4; i++)//代表穷举进行((A@B)@C)@D)
+	{
+		int temp1 = calculate(a[0], a[1], i);
+		if (temp1 == error)continue;
+		for (int j(0); j < 4; j++)
+		{
+			int temp2 = calculate(temp1, a[2], j);
+			if (temp2 == error)continue;
+			for (int k(0); k< 4; k++)
+			{
+				int temp3 = calculate(temp2, a[3], k);
+				if (temp3 == 24)return true;
+			}
+		}
+	}
+	for (int i(0); i < 4; i++)//代表穷举(A@(B@C))@D)
+	{
+		int temp1 = calculate(a[1], a[2], i);
+		if (temp1 == error)continue;
+		for (int j(0); j < 4; j++)
+		{
+			int temp2 = calculate(a[0], temp1, j);
+			if (temp2 == error)continue;
+			for (int k(0); k< 4; k++)
+			{
+				int temp3 = calculate(temp2, a[3], k);
+				if (temp3 == 24)return true;
+			}
+		}
+	}
+	return false;
+}
+void swap(int &a, int &b)
+{
+	int temp = a;
+	a = b;
+	b = temp;
+}
+/*排列算法的主要思想就是：perm{1,2,3,4}=1perm{2,3,4}+2{1,3,4}+3{2,1，4}+4{2,3,1}
+注意顺序：即每个元素和第一个元素交换顺序
+然后进行递归；
+*/
+void quanpai(vector<int> a, int first, int rear)//对于输入的四个数，进行全排列，并对每一次的排列都进行judge运算
+{
+	if (first == rear)
+	{
+		int temp[4];//如果一次全排完成，进行judge运算
+		for (int i(0); i <= rear; i++)
+
+		{
+			temp[i] =a[i];
+
+		}
+		if (judge(temp))
+		{
+			cout << "Y"; exit(1);
+		}
+
+	}
+	else
+	{
+		for (int s(first); s <= rear; s++)
+		{
+			swap(a[s], a[first]);
+			quanpai(a, first + 1, rear);
+			swap(a[s], a[first]);
+		}
+
+	}
+
+}
+int main()
+{
+	vector<int> a;
+	char b[4];
+	for (int i(0); i < 4; i++)
+	{
+		cin >> b[i];
+		a.push_back( change(b[i]));
+	}
+
+	quanpai(a, 0, 3);
+	cout << "N";
+	return 0;
+}
+
+int change(char a)
+{
+	if (a == 'A')return 1;
+	if (a == 'J')return 11;
+	if (a == 'Q')return 12;
+	if (a == 'K')return 13;
+	else return (a - '0');
+	return 0;
+}
